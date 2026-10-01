@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.app.core_banking_service.domain.exception.InsufficientFundsException;
 import com.app.core_banking_service.domain.exception.InvalidTransactionAmountException;
+import com.app.core_banking_service.domain.exception.AccountFrozenException;
 import java.time.Instant;
 
 public class Account {
@@ -27,6 +28,21 @@ public class Account {
     private final Instant createdAt;
 
     private Instant updatedAt;
+
+    private Account(Long id, UUID accountNumber, UUID customerId, AccountType accountType,
+                    Money balance, Money reservedBalance, AccountStatus status, Long version,
+                    Instant createdAt, Instant updatedAt) {
+        this.id = id;
+        this.accountNumber = accountNumber;
+        this.customerId = customerId;
+        this.accountType = accountType;
+        this.balance = balance;
+        this.reservedBalance = reservedBalance;
+        this.status = status;
+        this.version = version;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 
     public static Account open(UUID customerId, AccountType accountType, String currencyCode){
 
@@ -52,19 +68,19 @@ public class Account {
             throw new AccountFrozenException("Account " + this.accountNumber + " is " + this.status + " and cannot be debited");
         }
 
-        Money avaliableBalance = getAvailableBalance();
-        if(!avaliableBalance.isGreaterThanOrEqualTo(amount)){
-           if(!this.accuntType.isOverdraftPermitted()){
-            throw new InsufficientFundsException("Insufficient funds for account " + this.accountNumber + ". Available: " + avaliableBalance + ", Requested: " + amount);
+        Money availableBalance = getAvailableBalance();
+        if (!availableBalance.isGreaterThanOrEqualTo(amount)
+                && !this.accountType.isOverdraftPermitted()) {
+            throw new InsufficientFundsException("Insufficient funds for account " + this.accountNumber
+                    + ". Available: " + availableBalance + ", Requested: " + amount);
            } 
-        }
 
         this.balance = this.balance.subtract(amount);
 
         this.updatedAt  = Instant.now();
     }
 
-    public Money getAvailbleBalance(){
+    public Money getAvailableBalance(){
         return this.balance.subtract(this.reservedBalance);
     }
 
