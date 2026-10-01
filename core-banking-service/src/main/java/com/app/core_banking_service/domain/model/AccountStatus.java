@@ -2,7 +2,7 @@ package com.app.core_banking_service.domain.model;
 
 public enum AccountStatus {
     ACTIVE(true, true),
-    FROZON(false, true),
+    FROZEN(false, true),
     DORMANT(false, false),
     CLOSED(false, false);
 

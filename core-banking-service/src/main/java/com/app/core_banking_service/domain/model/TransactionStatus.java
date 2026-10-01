@@ -1,5 +1,8 @@
 package com.app.core_banking_service.domain.model;
 
-public class TransactionStatus {
-    
+public enum TransactionStatus {
+    PENDING,
+    POSTED,
+    FAILED,
+    REVERSED
 }
